@@ -5,8 +5,6 @@ from flask import Flask
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 
-from modules.templates.template_api import Template
-
 app = Flask(__name__)
 # CORS(app)
 api = Api(app)
@@ -17,8 +15,9 @@ blacklist = set()
 
 
 from modules.users.login import Login
-from modules.users.logout import Logout
+#from modules.users.logout import Logout
 from modules.users.register import SignUp
+from modules.templates.template_api import Template
 
 @jwt.token_in_blacklist_loader
 def check_if_token_in_blacklist(decrypted_token):
@@ -51,7 +50,7 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 #endpoints
 api.add_resource(SignUp, '/signup')
 api.add_resource(Login, '/login')
-api.add_resource(Logout, '/logout')
+#api.add_resource(Logout, '/logout')
 api.add_resource(Template, '/template','/template/<template_id>')
 
 
