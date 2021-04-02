@@ -3,3 +3,4 @@ Flask-JWT-Extended==3.25.0
 Flask-RESTful==0.3.8
 pymongo==3.11.3
 Werkzeug==1.0.1
+dnspython==1.16.0
