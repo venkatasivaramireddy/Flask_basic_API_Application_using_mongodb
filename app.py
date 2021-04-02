@@ -48,7 +48,7 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 
 
 #endpoints
-api.add_resource(SignUp, '/signup')
+api.add_resource(SignUp, '/register')
 api.add_resource(Login, '/login')
 #api.add_resource(Logout, '/logout')
 api.add_resource(Template, '/template','/template/<template_id>')
