@@ -38,9 +38,10 @@ class Login(Resource):
             if res is not None:
                 hashed_password = res['password']
                 if check_password_hash(hashed_password, password):
+                    guid = res['guid']
                     data = {
-                        'access_token': create_access_token(identity=email),
-                        'refresh_token': create_refresh_token(identity=email)
+                        'access_token': create_access_token(identity=guid),
+                        'refresh_token': create_refresh_token(identity=guid)
                     }
                     return make_response(jsonify({'result':data,'message': "Successfully Loged In", 'status_code': 200}), 200)
                 else:

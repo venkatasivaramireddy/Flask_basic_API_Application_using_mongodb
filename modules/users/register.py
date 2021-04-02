@@ -1,4 +1,6 @@
 import re
+import uuid
+
 from flask import request, make_response, jsonify
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash
@@ -63,7 +65,9 @@ class SignUp(Resource):
             if 'ErrorMessage' in email_status:
                 return make_response(jsonify({'message': email_status['ErrorMessage'], 'status_code': 400}), 400)
 
-            dict ={"first_name" :first_name,"last_name" :last_name,"email": email ,"password" :password ,"mobile" :mobile}
+            dict ={"guid":uuid.uuid4().hex,"first_name" :first_name,
+                   "last_name" :last_name,"email": email ,
+                   "password" :password ,"mobile" :mobile}
             email_id = self.client_db.get_collection(self.collection).find_one({'email':email})
             if email_id is None:
                 # first_name = self.validate_user_name(address=first_name)

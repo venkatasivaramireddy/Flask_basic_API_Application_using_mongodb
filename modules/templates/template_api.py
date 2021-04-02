@@ -1,9 +1,12 @@
+import uuid
+
 from flask import make_response, jsonify, request
 from flask_jwt_extended import jwt_required
 from flask_restful import Resource
 import config
 from database.mongodb import mongo_connect
 from bson import ObjectId
+from flask_jwt_extended import get_jwt_identity
 
 
 class Template(Resource):
@@ -17,14 +20,15 @@ class Template(Resource):
         self.mandatory_keys = ['template_name','subject','body']
         self.missing_keys = []
         self.final_dict = []
+        self.user_guid= get_jwt_identity()
 
     def get(self,template_id=''):
-
+        response_data = ''
         try:
             if template_id == '':
-                response_data = self.client_db.get_collection(self.collection).find()
+                response_data = self.client_db.get_collection(self.collection).find({'user_guid':self.user_guid})
             else:
-                response_data = self.client_db.get_collection(self.collection).find_one({"_id":ObjectId(template_id)})
+                response_data = self.client_db.get_collection(self.collection).find_one({'user_guid':self.user_guid,"_id":ObjectId(template_id)})
                 if response_data is not None:
                     if '_id' in response_data:
                         response_data['_id'] = str(response_data['_id'])
@@ -64,16 +68,17 @@ class Template(Resource):
             if len(self.missing_keys) > 0:
                 return make_response(
                     jsonify({'message': "Missing {} Key".format(self.missing_keys), 'status_code': 400}), 400)
-
+            meta_data_dict.update({'guid':uuid.uuid4().hex})
+            meta_data_dict.update({'user_guid': self.user_guid})
             self.client_db.get_collection(self.collection).insert(meta_data_dict)
             return make_response(
-                jsonify({'message': "Successfully Register, Login Using Email & Password", 'status_code': 201}))
+                jsonify({'message': "Document added Successfully", 'status_code': 201}))
         except Exception as e:
             return make_response(jsonify({'message': str(e), 'status_code': 400}), 400)
 
     def put(self,template_id):
         meta_data_dict = request.get_json()
-        response_data = self.client_db.get_collection(self.collection).find_one({"_id": ObjectId(template_id)})
+        response_data = self.client_db.get_collection(self.collection).find_one({'user_guid':self.user_guid,"_id": ObjectId(template_id)})
 
         if response_data is not None:
             for key, value in meta_data_dict.items():
@@ -96,7 +101,7 @@ class Template(Resource):
             return make_response(jsonify({'result': "Error While Updating Document", 'status_code': 400}), 400)
 
     def delete(self,template_id):
-        response_data = self.client_db.get_collection(self.collection).find_one({"_id": ObjectId(template_id)})
+        response_data = self.client_db.get_collection(self.collection).find_one({'user_guid':self.user_guid,"_id": ObjectId(template_id)})
         if response_data is None:
             return make_response(jsonify({'result': "No Match Content Found..", 'status_code': 400}), 400)
         response= self.client_db.get_collection(self.collection).remove({"_id": ObjectId(template_id)})
